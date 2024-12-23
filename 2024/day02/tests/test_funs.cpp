@@ -1,7 +1,7 @@
 
 
 #include <catch2/catch_test_macros.hpp>
-#include "funs.h"
+#include "funs.hpp"
 #include <vector>
 
 TEST_CASE("max_difference() works") {

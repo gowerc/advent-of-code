@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "funs.h"
+#include "funs.hpp"
 
 
 int main () {
