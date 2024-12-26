@@ -70,6 +70,7 @@
         "queue": "cpp",
         "stack": "cpp",
         "map": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "regex": "cpp"
     }
 }
