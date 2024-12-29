@@ -71,6 +71,7 @@
         "stack": "cpp",
         "map": "cpp",
         "sstream": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "fstream": "cpp"
     }
 }

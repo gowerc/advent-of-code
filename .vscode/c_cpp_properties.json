@@ -1,0 +1,17 @@
+
+
+{
+    "configurations": [
+        {
+            "name": "main",
+            "includePath": [
+                "${workspaceFolder}/2024/day04/build/_deps/cli11-src/include",
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
+
