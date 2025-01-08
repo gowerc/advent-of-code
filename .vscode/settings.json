@@ -74,6 +74,11 @@
         "regex": "cpp",
         "fstream": "cpp",
         "set": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "list": "cpp",
+        "future": "cpp",
+        "iomanip": "cpp",
+        "semaphore": "cpp",
+        "unordered_set": "cpp"
     }
 }
