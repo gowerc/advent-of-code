@@ -2,121 +2,182 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <sstream>
-#include <cmath>
 #include <algorithm>
 
+template <typename T>
+struct Matrix {
+    std::vector<std::vector<T>> data {};
+    Matrix(int nrow, int ncol, T init) 
+        : data(nrow, std::vector<T>(ncol, init)) {}
+
+    T &operator()(int x, int y) {
+        return data.at(x).at(y);
+    }
+    T &operator()(std::pair<int, int> pos) {
+        return data.at(pos.first).at(pos.second);
+    }
+};
 
 
-int main () {
-    std::cout << "Hello World!" << std::endl;
+struct Grid {
 
-    std::ifstream in_file {"./data/data_full.txt"};
+    int n_row;
+    int n_col;
+    Matrix<int> count;
+    Matrix<char> symbol;
+    std::pair<int, int> pos;
+    std::pair<int, int> dir{-1, 0};
+    bool is_inf_loop{false};
+
+    Grid(int nrow, int ncol):
+        n_row{nrow},
+        n_col{ncol},
+        count{Matrix<int>(nrow, ncol, 0)},
+        symbol{Matrix<char>(nrow, ncol, '.')} {}
+
+    void insert(size_t x, size_t y, char c) {
+        if (c == '^') {
+            pos = {x, y}; // "^" = Starting position
+            c = '.';
+        }
+        count(x, y) = 0;
+        symbol(x, y) = c;
+    }
+
+    void rotate() {
+        int new_r = dir.second;
+        int new_c = - dir.first;
+        dir.first = new_r;
+        dir.second = new_c;
+    }
+
+    std::pair<int, int> get_proposed_pos () {
+        return std::pair<int, int> {
+            pos.first + dir.first,
+            pos.second + dir.second
+        };
+    }
+
+    bool is_out_of_bounds (std::pair<int, int> pos) {
+        if (
+            pos.first >= n_row ||
+            pos.second >= n_col ||
+            pos.first < 0 ||
+            pos.second < 0
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    bool step() {
+        count(pos)++;
+        // Assuming that if they've been over the same square > 4 times then they are in a loop
+        if (count(pos) > 4) {
+            is_inf_loop = true;
+            return false;
+        }
+        std::pair<int, int> p_pos = get_proposed_pos();
+        if (is_out_of_bounds(p_pos)) return false;
+        int i{0};
+        while(symbol(p_pos) != '.') {
+            rotate();
+            p_pos = get_proposed_pos();
+            if (i > 3) {
+                std::cout << "Stuck in a trap" << std::endl;
+                std::exit(201);
+            }
+            i++;
+        }
+        if (is_out_of_bounds(p_pos)) return false;
+        pos = p_pos;
+        return true;
+    }
+
+    int unique_step_count() {
+        int total {0};
+        auto count_fun = [&total] (std::vector<int> x) {
+            total += std::count_if( x.begin(), x.end(), [](int x) { return x >= 1; });
+        };
+        std::for_each( count.data.begin(), count.data.end(), count_fun);
+        return total;
+    }
+
+    void add_blockade(int x, int y) {
+        if (x == pos.first && y == pos.second) {
+            return;
+        }
+        symbol(x, y) = '#';
+    }
+
+    void run_till_complete() {
+        while(step()) {}
+    }
+};
+
+
+Grid parse_data(std::string filename) {
+    std::ifstream in_file {filename};
     if (!in_file.is_open()) {
         std::cout << "Unable to open file" << std::endl;
         std::exit(101);
     }
 
-    std::vector<std::vector<int>> grid_count;
-    std::vector<std::vector<int>> grid_type;
-    std::vector<std::vector<char>> grid_char;
-    std::pair<int, int> pos;
-    char c;
+    std::vector<std::string> file_content;
 
-    int current_row_index {0};
-    int current_col_index {-1};
-
-    grid_count.push_back(std::vector<int>{});
-    grid_type.push_back(std::vector<int>{});
-    grid_char.push_back(std::vector<char>{});
-
-    while (in_file.get(c)) {
-        if (c == '\n') {
-            current_col_index = -1;
-            current_row_index++;
-            grid_count.push_back(std::vector<int>{});
-            grid_type.push_back(std::vector<int>{});
-            grid_char.push_back(std::vector<char>{});
-            continue;
-        }
-        current_col_index++;
-        int type;
-        switch(c) {
-            case '.': type = 1; break;
-            case '#': type = 2; break;
-            case '^':
-                type = 1;
-                pos = {current_row_index, current_col_index};
-                break;
-        }
-        grid_count.at(current_row_index).push_back(0);
-        grid_type.at(current_row_index).push_back(type);
-        grid_char.at(current_row_index).push_back(c);
+    while (!in_file.eof()) {
+        std::string cline;
+        getline(in_file, cline);
+        file_content.push_back(cline);
     }
 
-    // for (int i{0}; i <= current_row_index; i++) {
-    //     for (int j{0}; j <= current_col_index; j++) {
-    //         std::cout << grid_char.at(i).at(j);
-    //     }
-    //     std::cout << std::endl;
-    // }
+    size_t n_row{file_content.size()};
+    size_t n_col{file_content.at(0).size()};
 
-    std::pair<int, int> dir{-1, 0};
-
-    std::cout << "Starting pos = " << "(" << pos.first << ", " << pos.second << ")" << std::endl;
-    std::cout << "current_row_index = " << current_row_index << std::endl;
-    std::cout << "current_col_index = " << current_col_index << std::endl;
-    
-
-    grid_count.at(pos.first).at(pos.second) ++;
-    while(true) {
-
-        if (
-            (pos.first + dir.first) >= 0 && (pos.second + dir.second) >= 0 &&
-            (pos.first + dir.first) <= current_row_index && (pos.second + dir.second) <= current_col_index
-        ) {
-            if (grid_type.at(pos.first + dir.first).at(pos.second + dir.second) == 2) {
-                int new_r = dir.second;
-                int new_c = - dir.first;
-                dir.first = new_r;
-                dir.second = new_c;
-                std::cout << "TURNING = (" << dir.first << ", " << dir.second << ")" << std::endl;
-            }
+    Grid grid(n_row, n_col);
+    for (size_t i{0}; i < n_row; i++) {
+        for (size_t j{0}; j < n_col; j++) {
+            grid.insert(i, j, file_content.at(i).at(j));
         }
-
-        if (grid_type.at(pos.first).at(pos.second) == 1) {
-            pos.first += dir.first;
-            pos.second += dir.second;
-        }
-
-        if (
-            pos.first >= current_row_index ||
-            pos.second >= current_col_index ||
-            pos.first < 0 ||
-            pos.second < 0
-        ) {
-            break;
-        }
-
-        grid_count.at(pos.first).at(pos.second) ++;
-        std::cout << "(" << pos.first << ", " << pos.second << ")" << std::endl;
     }
-
-    int total {0};
-    std::for_each(
-        grid_count.begin(),
-        grid_count.end(),
-        [&total] (std::vector<int> x) {
-            total += std::count_if(
-                x.begin(),
-                x.end(),
-                [](int x) {
-                    return x >= 1;
-                }
-            );
-        }
-    );
-    std::cout << "Total = " << total << std::endl;
+    return grid;
 }
 
 
+void solve_part_2(Grid grid) {
+
+    // Adding a block to any point that isn't on the original route won't change
+    // the outcome so no point evaluting them
+    // So we simply record every step on the original route and then see if adding a
+    // block there changes the outcome
+    auto is_inf_with_block = [grid](auto block) {
+        Grid grid2{grid};
+        grid2.add_blockade(block.first, block.second);
+        grid2.run_till_complete();
+        return grid2.is_inf_loop;
+    };
+
+    grid.run_till_complete();
+    std::vector<std::pair<int, int>> o_route;
+
+    for (int i{0}; i < grid.n_row; i++) {
+        for (int j{0}; j < grid.n_col; j++) {
+            if (grid.count(i, j) > 0) o_route.push_back({i, j});
+        }
+    }
+
+    int total = std::count_if( o_route.begin(), o_route.end(), is_inf_with_block);
+    std::cout << "Part-2 = " << total << std::endl;
+}
+
+
+void solve_part_1(Grid grid) {
+    grid.run_till_complete();
+    std::cout << "Part-1 = " << grid.unique_step_count() << std::endl;
+}
+
+int main () {
+    Grid grid = parse_data("./data/data_full.txt");
+    solve_part_1(grid);
+    solve_part_2(grid);
+}
