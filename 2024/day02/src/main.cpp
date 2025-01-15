@@ -10,7 +10,7 @@
 int main () {
     std::cout << "hello world" << std::endl;
 
-    std::ifstream in_file {"./data.txt"};
+    std::ifstream in_file {"./data/data.txt"};
     if (!in_file.is_open()) {
         std::exit(1);
     }

@@ -90,7 +90,7 @@ std::string get_data(std::string file) {
 
 int main() {
 
-    std::string line {get_data("./data.txt")};
+    std::string line {get_data("./data/data.txt")};
     solve_problem(line, extract_muls);
     solve_problem(line, extract_muls_coded);
 

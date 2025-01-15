@@ -7,7 +7,7 @@
 
 int main() {
     
-    std::ifstream infile { "./data.txt" };
+    std::ifstream infile { "./data/data.txt" };
 
     if (!infile) {
         std::exit(1);

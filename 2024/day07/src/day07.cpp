@@ -1,3 +1,10 @@
+//
+//
+// Original answer brute force calculated all the operation combinations and then applied
+// them. Didn't realise you could just use recursion which significantly speeds up performance
+//
+//
+
 #include <sstream>
 #include <iostream>
 #include <functional>
@@ -8,67 +15,38 @@
 #include <string>
 #include <format>
 
-using fun = std::function<long long(long long, long long)>;
-long long f_sum(long long x, long long y) { return x + y ; };
-long long f_prod(long long x, long long y) { return x * y; };
 
-/**
- * For a given integer creates a vector of all possible function
- * combinations based on a binary expansion e.g. 3 =
- * 000
- * 001
- * 010
- * 011
- * 100
- * 101
- * 110
- * 111
- * Where 0 = `f_sum`, 1 = `f_prod`
- */
-std::vector<std::vector<fun>> expand_funs(long long n) {
-    std::vector<fun> ops {f_sum, f_prod};
-    std::vector<std::vector<fun>> result;
-    for (long long i{0}; i < std::pow(2 , n) ; i++) {
-        std::vector<fun> hold;
-        for (long long j{0}; j < n ; j++ ) {
-            long long index = (i >> j) & 1;
-            hold.push_back(ops.at(index));
-        }
-        result.push_back(hold);
+
+bool is_valid_p1(const std::vector<long long> & vals, long long target, long long current_val, size_t index) {
+    if (index == vals.size()) {
+        return current_val == target;
     }
-    return result;
-}
-
-
-/**
- * Takes a vector of integers and summarises them by recursively
- * applying the function in funs e.g. `result = funs[i](result, vals[i + 1])`
- * `vals` must be of length `funs.size() + 1`
- *
- * @param vals Vector of long longs to be combined (added or multiplied)
- * @param funs Vector of functions to apply to `vals` 
- */
-long long apply_funs(std::vector<long long> vals, std::vector<fun> funs) {
-    if (vals.size() != (funs.size() + 1)) {
-        std::cout << "ERROR: incompatible vector sizes" << std::endl;
-        std::exit(123);
+    if ( is_valid_p1(vals, target, current_val + vals[index], index + 1)) {
+        return true;
     }
-    long long result{vals.at(0)};
-    for (long long i{0}; i < funs.size(); i++) {
-        result = funs.at(i)(result, vals.at(i + 1));
-    }
-    return result;
-}
-
-
-
-bool is_valid(std::vector<long long> vals, long long target) {
-    auto all_funs = expand_funs(vals.size() - 1);
-    for (auto funs: all_funs) {
-        if ( apply_funs(vals, funs) == target) return true;
+    if ( is_valid_p1(vals, target, current_val * vals[index], index + 1)) {
+        return true;
     }
     return false;
 }
+
+
+bool is_valid_p2(const std::vector<long long> & vals, long long target, long long current_val, size_t index) {
+    if (index == vals.size()) {
+        return current_val == target;
+    }
+    if ( is_valid_p2(vals, target, current_val + vals[index], index + 1)) {
+        return true;
+    }
+    if ( is_valid_p2(vals, target, current_val * vals[index], index + 1)) {
+        return true;
+    }
+    if ( is_valid_p2(vals, target, std::stoll(std::to_string(current_val) + std::to_string(vals[index])), index + 1)) {
+        return true;
+    }
+    return false;
+}
+
 
 
 std::pair<long long, std::vector<long long>> parse_line(const std::string& line) {
@@ -107,16 +85,85 @@ std::vector<std::pair<long long, std::vector<long long>>> get_inputs(const std::
 
 
 int main () {
-
-
     auto inputs = get_inputs("./data/data_full.txt");
 
     size_t total{0};
     for (auto item: inputs) {
-        if ( is_valid(item.second, item.first)) {
+        if ( is_valid_p1(item.second, item.first, item.second[0], 1)) {
             total += item.first;
         }
     }
+    std::cout << std::format("Part-One Total = {}", total) << std::endl;
 
-    std::cout << std::format("Total = {}", total) << std::endl;
+
+    size_t total_2{0};
+    for (auto item: inputs) {
+        if ( is_valid_p2(item.second, item.first, item.second[0], 1)) {
+            total_2 += item.first;
+        }
+    }
+    std::cout << std::format("Part-Two Total = {}", total_2) << std::endl;
+
 }
+
+
+
+
+// using fun = std::function<long long(long long, long long)>;
+// long long f_sum(long long x, long long y) { return x + y ; };
+// long long f_prod(long long x, long long y) { return x * y; };
+
+
+// std::vector<fun> ops_two {f_sum, f_prod};
+// std::vector<fun> ops_three {f_sum, f_prod, f_concat};
+
+
+// std::vector<std::vector<fun>> cartesian_product(const std::vector<fun> & ops, int n_digits) {
+//     size_t n_elements {ops.size()};
+//     std::vector<std::vector<fun>> result;
+//     std::vector<int> hold_index(n_digits, 0);
+//     std::vector<fun> hold_fun(n_digits);
+//     for (int i{1}; i <= std::pow(n_elements, n_digits); i++) {
+//         for (int x{0}; x < hold_fun.size() ; x ++) {
+//             hold_fun.at(x) = ops.at(hold_index.at(x));
+//         }
+//         result.push_back(hold_fun);
+//         for (int j{1}; j <= n_digits ; j++) { 
+//             if ((i % static_cast<long long>(std::pow(n_elements, j - 1))) == 0) {
+//                 hold_index.at(j - 1) ++;
+//                 if (hold_index.at(j - 1) >= n_elements) hold_index.at(j - 1) = 0;
+//             }
+//         }
+//     }
+//     return result;
+// }
+
+
+
+/**
+ * Takes a vector of integers and summarises them by recursively
+ * applying the function in funs e.g. `result = funs[i](result, vals[i + 1])`
+ * `vals` must be of length `funs.size() + 1`
+ *
+ * @param vals Vector of long longs to be combined (added or multiplied)
+ * @param funs Vector of functions to apply to `vals` 
+ */
+// long long apply_funs(const std::vector<long long> & vals, std::vector<fun> & funs) {
+//     if (vals.size() != (funs.size() + 1)) {
+//         std::cout << "ERROR: incompatible vector sizes" << std::endl;
+//         std::exit(123);
+//     }
+//     long long result{vals.at(0)};
+//     for (long long i{0}; i < funs.size(); i++) {
+//         result = funs[i](result, vals[i + 1]);
+//     }
+//     return result;
+// }
+
+// bool is_valid(const std::vector<long long> & vals, long long target, const std::vector<fun> & ops) {
+//     std::vector<std::vector<fun>> all_funs = cartesian_product(ops, vals.size() - 1);
+//     for (std::vector<fun> funs: all_funs) {
+//         if ( apply_funs(vals, funs) == target) return true;
+//     }
+//     return false;
+// }
