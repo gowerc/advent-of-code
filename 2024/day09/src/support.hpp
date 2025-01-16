@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -77,4 +78,46 @@ std::vector<int> parse_line (std::string x) {
         insert = !insert;
     }
     return result;
+}
+
+
+
+struct File {
+    int id;
+    int size;
+    int space;
+    bool operator==(const File &other) const {
+        return id == other.id &&
+            size == other.size &&
+            space == other.space;
+    }
+    friend std::ostream &operator<<(std::ostream &os, const File &obj) {
+        os << "{ID: " << obj.id
+           << ", size: " << obj.size
+           << ", space: " << obj.space << "}";
+        return os;
+    }
+};
+
+
+std::list<File> sort_files_p2(std::list<File> files) {
+    auto c_itr = std::prev(files.end());
+    auto s_itr = files.begin();
+    while (c_itr != s_itr) {
+        auto t_itr = s_itr;
+        while(t_itr != c_itr) {
+            if (t_itr->space >= c_itr->size) {
+                t_itr++;
+                std::list<File>::iterator new_itr = files.insert(t_itr, *c_itr);
+                c_itr = files.erase(c_itr);
+                t_itr = std::prev(std::prev(t_itr));
+                new_itr->space = t_itr->space - new_itr->size;
+                t_itr->space = 0;
+                break;
+            }
+            t_itr = std::next(t_itr);
+        }
+        c_itr = std::prev(c_itr);
+    }
+    return files;
 }

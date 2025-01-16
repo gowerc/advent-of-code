@@ -3,6 +3,7 @@
 #include "../src/support.hpp"
 #include <vector>
 #include <string>
+#include <list>
 
 TEST_CASE("hello world") {
     
@@ -99,3 +100,26 @@ TEST_CASE("sort_vector()") {
 }
 
 
+
+
+TEST_CASE("sort_files_p2()") {
+
+    std::list<File> files {
+        {1, 2, 4},
+        {2, 3, 3},
+        {3, 2, 0},
+        {4, 2, 0},
+        {5, 6, 0}
+    };
+
+    std::list<File> expected {
+        {1, 2, 0},
+        {4, 2, 0},
+        {3, 2, 0},
+        {2, 3, 3},
+        {5, 6, 0}
+    };
+
+    auto actual = sort_files_p2(files);
+    REQUIRE(actual == expected);
+}
