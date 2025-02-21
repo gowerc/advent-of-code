@@ -7,9 +7,6 @@
 
 
 #include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/fmt/ostr.h"
-#include "spdlog/fmt/fmt.h"
 
 
 void printme(std::vector<char> x) {
@@ -119,6 +116,7 @@ std::list<File> parse_line_p2(std::string x) {
 
 
 std::list<File> sort_files_p2(std::list<File> files) {
+    spdlog::info("Entered sort_files_p2 {}", 1);
     auto c_itr = std::prev(files.end());
     auto s_itr = files.begin();
     while (c_itr != s_itr) {
