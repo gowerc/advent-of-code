@@ -26,7 +26,7 @@ TEST_CASE("calculate_check_sum()") {
 
 
 
-TEST_CASE("parse_line()") {
+TEST_CASE("parse_line_p1()") {
     std::string line {"432111411641022054"};
     
     std::vector<int> result {
@@ -40,7 +40,7 @@ TEST_CASE("parse_line()") {
         -1,                       // 1
         4,                        // 1
         -1, -1, -1, -1, -1, -1,   // 6
-        5, 5,5,5,                 // 4
+        5, 5, 5, 5,               // 4
         -1,                       // 1
                                   // 0
         -1, -1,                   // 2
@@ -49,7 +49,7 @@ TEST_CASE("parse_line()") {
         8,8,8,8,8,                // 5
         -1, -1, -1, -1            // 4
     };
-    REQUIRE(parse_line(line) == result);
+    REQUIRE(parse_line_p1(line) == result);
 }
 
 
@@ -104,22 +104,50 @@ TEST_CASE("sort_vector()") {
 
 TEST_CASE("sort_files_p2()") {
 
-    std::list<File> files {
-        {1, 2, 4},
-        {2, 3, 3},
-        {3, 2, 0},
-        {4, 2, 0},
-        {5, 6, 0}
-    };
+    {
+        std::list<File> files {
+            {1, 2, 4},
+            {2, 3, 3},
+            {3, 2, 0},
+            {4, 2, 0},
+            {5, 6, 0}
+        };
 
-    std::list<File> expected {
-        {1, 2, 0},
-        {4, 2, 0},
-        {3, 2, 0},
-        {2, 3, 3},
-        {5, 6, 0}
-    };
+        std::list<File> expected {
+            {1, 2, 0},
+            {4, 2, 0},
+            {3, 2, 0},
+            {2, 3, 7},
+            {5, 6, 0}
+        };
 
-    auto actual = sort_files_p2(files);
-    REQUIRE(actual == expected);
+        auto actual = sort_files_p2(files);
+        REQUIRE(actual == expected);
+    }
+
+    {
+        std::list<File> files {
+            {1, 2, 2},
+            {2, 3, 3},
+            {3, 1, 2},
+            {4, 1, 4},
+            {5, 6, 0},
+            {6, 2, 4},
+            {7, 1, 2}
+        };
+
+        std::list<File> expected {
+            {1, 2, 0},
+            {7, 1, 0},
+            {4, 1, 0},
+            {2, 3, 0},
+            {6, 2, 0},
+            {3, 1, 8},
+            {5, 6, 9}
+        };
+
+        auto actual = sort_files_p2(files);
+        REQUIRE(actual == expected);
+    }
+
 }

@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.11)
 project(day09)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 
 # Define support functions as library
@@ -21,25 +21,42 @@ add_executable(main src/day09.cpp)
 target_link_libraries(main support)
 
 
+# Define Unit test executible
+add_executable(tests tests/test_support.cpp)
+
+
+
 # Define unit tsts
 include(FetchContent)
 
+## Unittesting library
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG v3.4.0
 )
-
 FetchContent_MakeAvailable(Catch2)
 
 
-add_executable(tests tests/test_support.cpp)
+## Logging library
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog
+    GIT_TAG v1.15.1
+)
+FetchContent_MakeAvailable(spdlog)
+
+
+
+target_link_libraries(main spdlog)
 
 target_link_libraries(
     tests
     PRIVATE Catch2::Catch2WithMain
     support
+    spdlog
 )
+
 
 
 include(CTest)
