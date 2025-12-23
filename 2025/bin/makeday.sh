@@ -1,0 +1,3 @@
+
+cookiecutter ./templates/stdday -o ./
+

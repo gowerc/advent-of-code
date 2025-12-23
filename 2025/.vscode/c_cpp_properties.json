@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "main",
+            "includePath": [
+                "/home/gowerc/.local/include/**"
+            ],
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17"
+        }
+    ],
+    "version": 4
+}
